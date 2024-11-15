@@ -1,0 +1,48 @@
+name: build
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bullseye
+      env: { LANG: "C.UTF-8" }
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          apt-get update
+          apt-get install -y g++ make ninja-build libc6-dev cmake libpng-dev libjpeg-dev libxi-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libcurl4-openssl-dev libfreetype6-dev zlib1g-dev libgmp-dev libzstd-dev libleveldb-dev gettext desktop-file-utils ca-certificates wget file --no-install-recommends
+
+      - name: Checkout Luanti src
+        uses: actions/checkout@v4
+        with:
+          repository: minetest/minetest
+          path: luanti
+          ref: 5.10.0
+
+      - name: Checkout LuaJIT src
+        uses: actions/checkout@v4
+        with:
+          repository: LuaJIT/LuaJIT
+          path: luajit
+
+      - name: Build
+        run: |
+          ./build.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: luanti
+          path: luanti/build/*.AppImage
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: luanti.debug
+          path: luanti/build/luanti.debug
+          if-no-files-found: error
