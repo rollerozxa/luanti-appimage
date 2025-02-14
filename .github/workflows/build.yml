@@ -23,7 +23,7 @@ jobs:
         with:
           repository: minetest/minetest
           path: luanti
-          ref: 5.10.0
+          ref: 5.11.0
 
       - name: Checkout LuaJIT src
         uses: actions/checkout@v4
