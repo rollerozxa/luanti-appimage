@@ -40,7 +40,7 @@ ninja install
 cd AppDir
 
 # Put desktop and icon at root
-ln -s usr/share/applications/net.minetest.minetest.desktop luanti.desktop
+ln -s usr/share/applications/org.luanti.luanti.desktop luanti.desktop
 ln -s usr/share/icons/hicolor/128x128/apps/luanti.png luanti.png
 ln -s luanti.png .DirIcon
 
@@ -68,12 +68,14 @@ INCLUDE_LIBS=(
 	libleveldb.so.1d
 	 libsnappy.so.1
 )
-#	libSDL2-2.0.so.0
 
 mkdir -p usr/lib/
 for i in "${INCLUDE_LIBS[@]}"; do
 	cp /usr/lib/x86_64-linux-gnu/$i usr/lib/
 done
+
+# Copy our own built SDL2
+cp /usr/lib/libSDL2-2.0.so.0 usr/lib/
 
 # Actually build the appimage
 cd ..

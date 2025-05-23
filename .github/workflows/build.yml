@@ -17,13 +17,16 @@ jobs:
         run: |
           apt-get update
           apt-get install -y g++ make ninja-build libc6-dev cmake libpng-dev libjpeg-dev libxi-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libcurl4-openssl-dev libfreetype6-dev zlib1g-dev libgmp-dev libzstd-dev libleveldb-dev gettext desktop-file-utils ca-certificates wget file --no-install-recommends
+          
+          wget https://github.com/principia-game/linux-deps/releases/download/latest/deps.tar.gz -O linux-deps.tar.gz
+          tar -xaf linux-deps.tar.gz -C /
 
       - name: Checkout Luanti src
         uses: actions/checkout@v4
         with:
           repository: minetest/minetest
           path: luanti
-          ref: 5.11.0
+          ref: 5.12.0
 
       - name: Checkout LuaJIT src
         uses: actions/checkout@v4
