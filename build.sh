@@ -28,7 +28,7 @@ cmake .. -G Ninja \
 	-DCMAKE_INSTALL_PREFIX=AppDir/usr \
 	-DBUILD_UNITTESTS=OFF \
 	-DENABLE_SYSTEM_JSONCPP=OFF \
-	-DCUSTOM_LOCALEDIR=../share/locale \
+	-DCUSTOM_LOCALEDIR=usr/share/locale \
 	-DLUA_INCLUDE_DIR=../../luajit/src/ \
 	-DLUA_LIBRARY=../../luajit/src/libluajit.a
 ninja
