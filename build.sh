@@ -25,7 +25,7 @@ fi
 # Compile and install into AppDir
 cmake .. -G Ninja \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
-	-DCMAKE_INSTALL_PREFIX=AppDir/usr/ \
+	-DCMAKE_INSTALL_PREFIX=/usr \
 	-DBUILD_UNITTESTS=OFF \
 	-DENABLE_SYSTEM_JSONCPP=OFF \
 	-DLUA_INCLUDE_DIR=../../luajit/src/ \
@@ -35,7 +35,7 @@ ninja
 objcopy --only-keep-debug ../bin/luanti luanti.debug
 objcopy --strip-debug --add-gnu-debuglink=luanti.debug ../bin/luanti
 
-ninja install
+DESTDIR=AppDir/ ninja install
 
 cd AppDir
 
