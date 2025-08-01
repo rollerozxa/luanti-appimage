@@ -16,16 +16,16 @@ mkdir -p build; cd build
 
 # Download appimagetool
 if [ ! -f appimagetool ]; then
-	wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
-	# Newer appimagetool uses Zstd compression which appimagelauncher doesn't support.
-	#wget https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
+	# Old version of appimagetool:
+	#wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
+	wget https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
 	chmod +x appimagetool
 fi
 
 # Compile and install into AppDir
 cmake .. -G Ninja \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
-	-DCMAKE_INSTALL_PREFIX=/usr \
+	-DCMAKE_INSTALL_PREFIX=AppDir/usr \
 	-DBUILD_UNITTESTS=OFF \
 	-DENABLE_SYSTEM_JSONCPP=OFF \
 	-DLUA_INCLUDE_DIR=../../luajit/src/ \
@@ -35,14 +35,17 @@ ninja
 objcopy --only-keep-debug ../bin/luanti luanti.debug
 objcopy --strip-debug --add-gnu-debuglink=luanti.debug ../bin/luanti
 
-DESTDIR=AppDir/ ninja install
+ninja install
 
 cd AppDir
 
 # Put desktop and icon at root
-ln -s usr/share/applications/org.luanti.luanti.desktop luanti.desktop
-ln -s usr/share/icons/hicolor/128x128/apps/luanti.png luanti.png
-ln -s luanti.png .DirIcon
+ln -sf usr/share/applications/org.luanti.luanti.desktop luanti.desktop
+ln -sf usr/share/icons/hicolor/128x128/apps/luanti.png luanti.png
+ln -sf luanti.png .DirIcon
+
+# Fix locales
+mv usr/share/locale usr/share/luanti
 
 cat > AppRun <<\APPRUN
 #!/bin/sh
@@ -79,5 +82,4 @@ cp /usr/lib/libSDL2-2.0.so.0 usr/lib/
 
 # Actually build the appimage
 cd ..
-# LZMA compression since appimagelauncher doesn't support Zstd
-ARCH=x86_64 ./appimagetool --appimage-extract-and-run --comp xz AppDir/
+ARCH=x86_64 ./appimagetool --appimage-extract-and-run AppDir/
