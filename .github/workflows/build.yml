@@ -4,9 +4,15 @@ on:
   - push
   - pull_request
 
+env:
+  LUANTI_REF: 5.15.1
+
 jobs:
-  linux:
-    runs-on: ubuntu-latest
+  build:
+    strategy:
+      matrix:
+        arch: [x86_64, aarch64]
+    runs-on: ${{ matrix.arch == 'x86_64' && 'ubuntu-latest' || 'ubuntu-24.04-arm' }}
     container:
       image: debian:bullseye
       env: { LANG: "C.UTF-8" }
@@ -16,17 +22,17 @@ jobs:
       - name: Install deps
         run: |
           apt-get update
-          apt-get install -y g++ make ninja-build libc6-dev cmake libpng-dev libjpeg-dev libxi-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libcurl4-openssl-dev libfreetype6-dev zlib1g-dev libgmp-dev libzstd-dev libleveldb-dev gettext desktop-file-utils ca-certificates wget file --no-install-recommends
-          
-          wget https://github.com/principia-game/linux-deps/releases/download/latest/deps.tar.gz -O linux-deps.tar.gz
-          tar -xaf linux-deps.tar.gz -C /
+          apt-get install -y \
+            g++ make ninja-build libc6-dev cmake libpng-dev libjpeg-dev libxi-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libvorbis-dev libopenal-dev libcurl4-openssl-dev libfreetype6-dev zlib1g-dev libgmp-dev libzstd-dev libleveldb-dev gettext desktop-file-utils ca-certificates wget file \
+            pkg-config libasound2-dev libpulse-dev libjack-dev libsndio-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxss-dev libxkbcommon-dev libdrm-dev libgbm-dev libgles2-mesa-dev libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev fcitx-libs-dev libwayland-dev zip \
+            --no-install-recommends
 
       - name: Checkout Luanti src
         uses: actions/checkout@v4
         with:
-          repository: minetest/minetest
+          repository: luanti-org/luanti
           path: luanti
-          ref: 5.15.1
+          ref: ${{ env.LUANTI_REF }}
 
       - name: Checkout LuaJIT src
         uses: actions/checkout@v4
@@ -36,16 +42,16 @@ jobs:
 
       - name: Build
         run: |
-          ./build.sh
+          ./build.sh ${{ matrix.arch }}
 
       - uses: actions/upload-artifact@v4
         with:
-          name: luanti
+          name: luanti-${{ env.LUANTI_REF }}-${{ matrix.arch }}
           path: luanti/build/*.AppImage
           if-no-files-found: error
 
       - uses: actions/upload-artifact@v4
         with:
-          name: luanti.debug
+          name: luanti-${{ env.LUANTI_REF }}-${{ matrix.arch }}.debug
           path: luanti/build/luanti.debug
           if-no-files-found: error

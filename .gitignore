@@ -1,4 +1,6 @@
 luajit/
 luanti/
+SDL2/
+usr/
 out/
 bins/
