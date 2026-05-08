@@ -5,7 +5,7 @@ on:
   - pull_request
 
 env:
-  LUANTI_REF: 5.15.2
+  LUANTI_REF: 5.16.0
 
 jobs:
   build:
