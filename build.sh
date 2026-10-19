@@ -43,6 +43,30 @@ fi
 
 popd
 
+# COMPILE LIBZIP
+
+libzip_ver="1.12.1"
+get_tar_archive libzip "https://github.com/nih-at/libzip/releases/download/v${libzip_ver}/libzip-${libzip_ver}.tar.gz"
+
+pushd libzip
+mkdir -p build; cd build
+cmake .. -G Ninja \
+	-DCMAKE_BUILD_TYPE=Release \
+	-DCMAKE_INSTALL_PREFIX=/ \
+	-DBUILD_SHARED_LIBS=OFF \
+	-DBUILD_{DOC,EXAMPLES,OSSFUZZ,REGRESS,TOOLS}=OFF \
+	-DENABLE_{BZIP2,COMMONCRYPTO,GNUTLS,LZMA,OPENSSL,READLINE,WINDOWS_CRYPTO,ZSTD}=OFF
+ninja
+if [ "${LOCAL_RUN}" != "1" ]; then
+	DESTDIR="/" ninja install
+	# this header gets installed to /include/zipconf.h instead of /usr/include/zipconf.h for some reason
+	mv /include/zipconf.h /usr/include/zipconf.h
+else
+	DESTDIR="../../" ninja install
+fi
+
+popd
+
 # COMPILE LUAJIT
 pushd luajit
 make amalg -j4

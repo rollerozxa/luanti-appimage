@@ -5,7 +5,7 @@ on:
   - pull_request
 
 env:
-  LUANTI_REF: 5.17.0
+  LUANTI_REF: 5.18.0-rc1
 
 jobs:
   build:
@@ -14,10 +14,15 @@ jobs:
         arch: [x86_64, aarch64]
     runs-on: ${{ matrix.arch == 'x86_64' && 'ubuntu-latest' || 'ubuntu-24.04-arm' }}
     container:
-      image: debian:bullseye
+      image: debian/eol:bullseye
       env: { LANG: "C.UTF-8" }
     steps:
-      - uses: actions/checkout@v4
+      - run: |
+          echo "deb http://archive.debian.org/debian bullseye main" > /etc/apt/sources.list
+          echo "deb http://snapshot.debian.org/archive/debian-security/20260831T211327Z/ bullseye-security main" >> /etc/apt/sources.list
+          echo "deb http://archive.debian.org/debian bullseye-updates main" >> /etc/apt/sources.list
+
+      - uses: actions/checkout@v6
 
       - name: Install deps
         run: |
@@ -28,14 +33,14 @@ jobs:
             --no-install-recommends
 
       - name: Checkout Luanti src
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: luanti-org/luanti
           path: luanti
           ref: ${{ env.LUANTI_REF }}
 
       - name: Checkout LuaJIT src
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: LuaJIT/LuaJIT
           path: luajit
@@ -44,13 +49,13 @@ jobs:
         run: |
           ./build.sh ${{ matrix.arch }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: luanti-${{ env.LUANTI_REF }}-${{ matrix.arch }}
           path: luanti/build/*.AppImage
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: luanti-${{ env.LUANTI_REF }}-${{ matrix.arch }}.debug
           path: luanti/build/luanti.debug
